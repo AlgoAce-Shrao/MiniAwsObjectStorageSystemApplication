@@ -1,5 +1,7 @@
 package com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.controller;
 
+import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.DTO.LoginRequestDTO;
+import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.DTO.LoginResponseDTO;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.DTO.SignUpRequestDTO;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.DTO.SignUpResponseDTO;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Exception.InvalidPasswordException;
@@ -24,5 +26,10 @@ public class AuthController {
         response.setStatus("User created successfully");
         return ResponseEntity.ok(response);
 
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> loginUser(@RequestBody LoginRequestDTO loginRequestDTO){
+        return ResponseEntity.ok(authService.loginUser(loginRequestDTO));
     }
 }

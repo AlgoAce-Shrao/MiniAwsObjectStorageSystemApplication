@@ -1,5 +1,6 @@
 package com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Exception;
 
+import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.DTO.LoginResponseDTO;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.DTO.SignUpResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,5 +26,14 @@ public class GlobalExceptionHandler {
         response.setStatus(invalidPasswordException .getMessage());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<LoginResponseDTO> handleUsernameNotFoundException(UsernameNotFoundException usernameNotFoundException){
+        LoginResponseDTO response=new LoginResponseDTO();
+        response.setStatus(usernameNotFoundException.getMessage());
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 }
