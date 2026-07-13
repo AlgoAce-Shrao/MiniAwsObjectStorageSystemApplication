@@ -19,7 +19,8 @@ import java.io.IOException;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class JwtAuthFilter extends OncePerRequestFilter {
+public class JwtAuthFilter extends OncePerRequestFilter
+{
 
     private final AppUserRepository appUserRepository;
 
@@ -33,7 +34,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         2. pass a check if the authorization header is null(as in public endpoint) or it doesn't have the proper authorization header...then pass on✅
             Why pass on:: If we reject it here only no request will be allowed ever...so we let it move on by saying it isn't authennticated..and let spring security decide about it
         3. if authorization header exists... extract the token...
-            Bearer ifbwegbug4tuh157yy387ytiugbeiu  (after space this is the token)✅
+            Bearer   (after space this is the token)✅
         4. now get the payloads from the token..cuz the payload consists of all the details about the client✅
         5.fetch the authenticated user from the payloads
         6.The authenticated user is then set into the SecurityContext, which is stored in the SecurityContextHolder. The SecurityContext is now accessible throughout the application and is used to retrieve the authenticated user's details. and be used for each and every authenticate request

@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -30,5 +31,8 @@ public class Bucket {
     private LocalDateTime createdAt;
 
     //filmetadata to be added
+
+    @OneToMany(mappedBy = "bucket")
+    private List<FileMetaData> fileMetaData;
     //owner id to be added
 }

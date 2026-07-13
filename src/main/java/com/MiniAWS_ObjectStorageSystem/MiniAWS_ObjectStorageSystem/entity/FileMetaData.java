@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,7 +28,16 @@ public class FileMetaData {
 
     private String path;
 
+    private Long size;
+
+
+    private String contentType;
+
     //bucket to be added
+
+    @ManyToOne
+    @JoinColumn(name="bucketId")
+    private  Bucket bucket;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
