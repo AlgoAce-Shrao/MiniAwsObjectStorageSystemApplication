@@ -88,4 +88,12 @@ public class GlobalExceptionHandler {
 
 
 
+    @ExceptionHandler(FileNotLoadedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<?> handleFileNotLoadedException(FileNotLoadedException fileNotLoadedException){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(fileNotLoadedException.getMessage());
+    }
+
+
+
 }

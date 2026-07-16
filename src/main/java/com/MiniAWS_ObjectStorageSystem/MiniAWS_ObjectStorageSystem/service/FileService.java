@@ -7,6 +7,7 @@ import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Repository.Fi
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.entity.AppUser;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.entity.FileMetaData;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.service.StorageService.LocalFileStorageService;
+import org.springframework.core.io.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -84,4 +85,19 @@ public class FileService {
         return responseDTOS;
     }
 
+    public Resource downloadFile(String bucketName, String filename) {
+        FileMetaData fileMetaData=fileRepository.findByBucket_BucketNameAndOriginalFilename(bucketName,filename).orElse(null);
+
+        if(fileMetaData==null){
+            throw new IllegalArgumentException("File not found!! Check credentials");
+        }
+
+
+        Path dirPath=Path.of(fileMetaData.getPath());
+        Path filePath=dirPath.resolve(fileMetaData.getStoredFilename());
+
+        return localFileStorageService.loadFileAsResource(filePath);
+
+
+    }
 }

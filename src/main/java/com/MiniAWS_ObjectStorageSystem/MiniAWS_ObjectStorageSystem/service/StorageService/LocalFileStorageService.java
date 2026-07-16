@@ -1,8 +1,10 @@
 package com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.service.StorageService;
 
+import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Exception.FileNotLoadedException;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Exception.FileValidationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -60,6 +62,16 @@ public class LocalFileStorageService implements FileStorageService{
 
     @Override
     public Resource loadFileAsResource(Path filePath) {
-        return null;
+
+        try{
+            Resource resource=new UrlResource(filePath.toUri());
+
+            if(resource.exists() && resource.isReadable()){
+                return resource;
+            }
+        } catch (Exception e) {
+            throw new FileNotLoadedException("Failed to load the file as resource:" + e);
+        }
+        throw new FileNotLoadedException("File not found or not readable");
     }
 }
