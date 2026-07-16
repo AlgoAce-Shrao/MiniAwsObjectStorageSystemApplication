@@ -30,9 +30,12 @@ public class Bucket {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    //filmetadata to be added
 
-    @OneToMany(mappedBy = "bucket")
+    @OneToMany(mappedBy = "bucket",fetch = FetchType.LAZY)
     private List<FileMetaData> fileMetaData;
-    //owner id to be added
+
+
+    @ManyToOne
+    @JoinColumn(name="userId")
+    private AppUser user;
 }

@@ -2,7 +2,9 @@ package com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.BucketManage
 
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Exception.BucketCreationException;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Exception.BucketValidationException;
+import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Repository.AppUserRepository;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Repository.BucketRepository;
+import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.entity.AppUser;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.entity.Bucket;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,7 @@ public class LocalBucketManagementService implements BucketManagementService{
     private Path uploadDirectory;
 
     private final BucketRepository bucketRepository;
+    private final AppUserRepository appUserRepository;
 
     private void validateBucketName(String bucketName) {
         if (bucketName == null || bucketName.trim().isEmpty()) {
@@ -50,7 +53,7 @@ public class LocalBucketManagementService implements BucketManagementService{
 
 
     @Override
-    public Bucket createBucket(String bucketName) {
+    public Bucket createBucket(String bucketName, AppUser user) {
         validateBucketName(bucketName);
         Path targetPath = uploadDirectory.resolve(bucketName).normalize();
 
@@ -77,6 +80,7 @@ public class LocalBucketManagementService implements BucketManagementService{
             Bucket newBucket = Bucket.builder()
                     .bucketName(bucketName)
                     .bucketPath(targetPath.toString())
+                    .user(user)
                     .build();
             return bucketRepository.save(newBucket);
         } catch (Exception e) {

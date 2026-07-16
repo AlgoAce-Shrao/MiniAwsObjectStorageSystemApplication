@@ -33,7 +33,6 @@ public class FileMetaData {
 
     private String contentType;
 
-    //bucket to be added
 
     @ManyToOne
     @JoinColumn(name="bucketId")

@@ -4,6 +4,7 @@ import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.BucketManagem
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.DTO.UploadResponseDTO;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Repository.BucketRepository;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Repository.FileRepository;
+import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.entity.AppUser;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.entity.FileMetaData;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.service.StorageService.LocalFileStorageService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,7 +43,7 @@ public class FileService {
 
 
     @Transactional
-    public List<UploadResponseDTO> uploadFile(MultipartFile[] multipartFiles, String bucketName){
+    public List<UploadResponseDTO> uploadFile(MultipartFile[] multipartFiles, String bucketName, @AuthenticationPrincipal AppUser user){
         ArrayList<UploadResponseDTO> responseDTOS=new ArrayList<>();
         //store the file and return here
         for(MultipartFile multipartFile:multipartFiles){
@@ -49,7 +51,7 @@ public class FileService {
             String bucket;
 
             if(!Files.exists(targetPath)){
-                bucket=localBucketManagementService.createBucket(bucketName).getBucketName();
+                bucket=localBucketManagementService.createBucket(bucketName,user).getBucketName();
             }else{
                 bucket=bucketName;
             }

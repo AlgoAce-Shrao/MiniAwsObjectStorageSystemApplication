@@ -36,6 +36,9 @@ public class AppUser implements UserDetails {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @OneToMany(mappedBy = "user")
+    private List<Bucket> buckets;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
