@@ -4,6 +4,8 @@ package com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.engine.internal.Cascade;
+import org.hibernate.engine.spi.CascadeStyle;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -17,6 +19,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Table(
+        indexes = {
+                @Index(
+                        name="idx_username_email",
+                        columnList = "username,email"
+                )
+        }
+)
 public class AppUser implements UserDetails {
 
 
@@ -24,10 +34,10 @@ public class AppUser implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column(nullable = false,updatable = false)
+    @Column(nullable = false,updatable = false,unique = true)
     private String username;
 
-    @Column(unique = true,nullable = false)
+    @Column(nullable = false)
     private String password;
 
     @Column(unique = true,nullable = false)
@@ -36,7 +46,11 @@ public class AppUser implements UserDetails {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",
+            cascade = CascadeType.REMOVE,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
     private List<Bucket> buckets;
 
     @Override

@@ -13,6 +13,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(
+        indexes = {
+                @Index(
+                        name = "idx_bucketName_filename",
+                        columnList = "bucketId,originalFilename"
+                )
+        }
+)
 public class FileMetaData {
 
     @Id
@@ -26,6 +34,7 @@ public class FileMetaData {
     @Column(unique = true,nullable = false)
     private String storedFilename;
 
+    @Column(nullable = false)
     private String path;
 
     private Long size;
@@ -34,7 +43,7 @@ public class FileMetaData {
     private String contentType;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="bucketId")
     private  Bucket bucket;
 

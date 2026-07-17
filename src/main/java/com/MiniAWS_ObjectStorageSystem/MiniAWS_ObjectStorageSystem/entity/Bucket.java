@@ -13,6 +13,18 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
+@Table(
+        indexes = {
+                @Index(
+                        name = "idx_app_user_id",
+                        columnList = "userId"
+                ),
+                @Index(
+                        name = "idx_appUserId_bucketId",
+                        columnList = "userId,bucketId"
+                )
+        }
+)
 public class Bucket {
 
 
@@ -31,11 +43,17 @@ public class Bucket {
     private LocalDateTime createdAt;
 
 
-    @OneToMany(mappedBy = "bucket",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "bucket",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.REMOVE,
+            orphanRemoval = true
+    )
     private List<FileMetaData> fileMetaData;
 
 
-    @ManyToOne
+    @ManyToOne(optional = false,
+            fetch = FetchType.LAZY
+    )
     @JoinColumn(name="userId")
     private AppUser user;
 }
