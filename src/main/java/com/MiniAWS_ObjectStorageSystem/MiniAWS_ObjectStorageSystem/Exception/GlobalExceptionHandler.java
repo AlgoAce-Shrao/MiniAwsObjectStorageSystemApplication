@@ -94,6 +94,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(fileNotLoadedException.getMessage());
     }
 
+    @ExceptionHandler(NullPointerException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<?> handleNullPointerException(NullPointerException nullPointerException){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(nullPointerException.getMessage());
+    }
+
 
 
 }

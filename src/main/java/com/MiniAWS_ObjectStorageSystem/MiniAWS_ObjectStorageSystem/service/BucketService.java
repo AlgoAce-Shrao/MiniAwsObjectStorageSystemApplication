@@ -5,12 +5,15 @@ import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.DTO.CreateBuc
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.DTO.GetBucketDetailsDTO;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.DTO.GetBucketsDTO;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Repository.BucketRepository;
+import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.cache.RedisService;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.entity.AppUser;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.entity.Bucket;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,11 +23,13 @@ public class BucketService {
     private final ModelMapper modelMapper;
     private final LocalBucketManagementService localBucketManagementService;
     private final BucketRepository bucketRepository;
+    private final RedisService redisService;
 
     public CreateBucketResponseDTO createBucket(String bucketName, AppUser user){
         Bucket bucket=localBucketManagementService.createBucket(bucketName,user);
         return modelMapper.map(bucket,CreateBucketResponseDTO.class);
     }
+
 
 
     public List<GetBucketsDTO> getAllBuckets(Long userId) {
@@ -33,10 +38,21 @@ public class BucketService {
             throw new IllegalArgumentException("User ID cannot be null");
         }
 
-         return bucketRepository.findAllByUser_UserId(userId)
-                 .stream()
-                 .map(bucket -> modelMapper.map(bucket,GetBucketsDTO.class))
-                 .toList();
+
+//        RedisTemplate<String,String> redisTemplate1=new RedisTemplate<>();
+        List<GetBucketsDTO> cached= (List<GetBucketsDTO>) redisService.get(userId.toString(),GetBucketsDTO.class);
+
+        if(cached!=null){
+            return cached;
+        }else{
+            List<GetBucketsDTO> db_response= bucketRepository.findAllByUser_UserId(userId)
+                    .stream()
+                    .map(bucket -> modelMapper.map(bucket,GetBucketsDTO.class))
+                    .toList();
+            redisService.set(userId.toString(),db_response,1000*60*10,);
+            return db_response;
+        }
+
 
     }
 
