@@ -9,14 +9,18 @@ import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.cache.RedisSe
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.entity.AppUser;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.entity.Bucket;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class BucketService {
 
@@ -24,6 +28,7 @@ public class BucketService {
     private final LocalBucketManagementService localBucketManagementService;
     private final BucketRepository bucketRepository;
     private final RedisService redisService;
+    private final ObjectMapper objectMapper;
 
     public CreateBucketResponseDTO createBucket(String bucketName, AppUser user){
         Bucket bucket=localBucketManagementService.createBucket(bucketName,user);
@@ -38,22 +43,31 @@ public class BucketService {
             throw new IllegalArgumentException("User ID cannot be null");
         }
 
+        String cacheKey=" user:"+userId+":buckets";
 
-//        RedisTemplate<String,String> redisTemplate1=new RedisTemplate<>();
-        List<GetBucketsDTO> cached= (List<GetBucketsDTO>) redisService.get(userId.toString(),GetBucketsDTO.class);
+        JavaType javaType=objectMapper.getTypeFactory().constructCollectionType(List.class,GetBucketsDTO.class);
+
+        List<GetBucketsDTO> cached=redisService.get(cacheKey,javaType);
 
         if(cached!=null){
+            log.info(" cache hit");
             return cached;
-        }else{
-            List<GetBucketsDTO> db_response= bucketRepository.findAllByUser_UserId(userId)
-                    .stream()
-                    .map(bucket -> modelMapper.map(bucket,GetBucketsDTO.class))
-                    .toList();
-            redisService.set(userId.toString(),db_response,1000*60*10,);
-            return db_response;
         }
 
+        log.info(" cache miss..so will hit the db");
+        List<GetBucketsDTO> response =
+                bucketRepository.findAllByUser_UserId(userId)
+                        .stream()
+                        .map(bucket ->
+                                modelMapper.map(
+                                        bucket,
+                                        GetBucketsDTO.class
+                                ))
+                        .toList();
 
+        redisService.set(cacheKey,response,600L);
+
+        return response;
     }
 
     public GetBucketDetailsDTO getBucket(Long userId, Long bucketId) {
