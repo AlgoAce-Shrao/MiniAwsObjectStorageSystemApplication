@@ -18,6 +18,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -43,7 +44,7 @@ public class BucketService {
             throw new IllegalArgumentException("User ID cannot be null");
         }
 
-        String cacheKey=" user:"+userId+":buckets";
+        String cacheKey="user:"+userId+":buckets";
 
         JavaType javaType=objectMapper.getTypeFactory().constructCollectionType(List.class,GetBucketsDTO.class);
 
@@ -73,6 +74,19 @@ public class BucketService {
     public GetBucketDetailsDTO getBucket(Long userId, Long bucketId) {
         if(userId==null || bucketId==null){
             throw new IllegalArgumentException("Credentials  cannot be null");
+        }
+
+        String cacheKey="user:"+userId+":buckets";
+
+        JavaType javaType=objectMapper.getTypeFactory().constructCollectionType(List.class,GetBucketsDTO.class);
+
+        List<GetBucketsDTO> cached=redisService.get(cacheKey,javaType);
+
+        if(cached!=null){
+            log.info("Cache hit again");
+            for(GetBucketsDTO bucketsDTO:cached){
+                if(Objects.equals(bucketsDTO.getBucketId(), bucketId)) return modelMapper.map(bucketsDTO,GetBucketDetailsDTO.class);
+            }
         }
         Bucket bucket=bucketRepository.findByUser_userIdAndBucketId(userId,bucketId).orElseThrow();
         return modelMapper.map(bucket,GetBucketDetailsDTO.class);

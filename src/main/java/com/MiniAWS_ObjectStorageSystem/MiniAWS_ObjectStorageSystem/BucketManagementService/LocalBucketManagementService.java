@@ -4,6 +4,7 @@ import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Exception.Buc
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Exception.BucketValidationException;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Repository.AppUserRepository;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.Repository.BucketRepository;
+import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.cache.RedisService;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.entity.AppUser;
 import com.MiniAWS_ObjectStorageSystem.MiniAWS_ObjectStorageSystem.entity.Bucket;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class LocalBucketManagementService implements BucketManagementService{
 
     private final BucketRepository bucketRepository;
     private final AppUserRepository appUserRepository;
+    private final RedisService redisService;
 
     private void validateBucketName(String bucketName) {
         if (bucketName == null || bucketName.trim().isEmpty()) {
@@ -82,6 +84,7 @@ public class LocalBucketManagementService implements BucketManagementService{
                     .bucketPath(targetPath.toString())
                     .user(user)
                     .build();
+            redisService.delete("user:"+user.getUserId()+":buckets");
             return bucketRepository.save(newBucket);
         } catch (Exception e) {
             logger.warn("Failed to save bucket to database: {}", bucketName, e);

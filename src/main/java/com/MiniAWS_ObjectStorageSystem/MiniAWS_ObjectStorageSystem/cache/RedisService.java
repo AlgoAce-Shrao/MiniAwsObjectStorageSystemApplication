@@ -18,18 +18,18 @@ public class RedisService {
     private final ObjectMapper objectMapper;
 
 
-//    public <T> T get (String key,Class<T> entityClass){
-//        try{
-//            Object o=redisTemplate.opsForValue().get(key);
-//            ObjectMapper objectMapper=new ObjectMapper();
-////            return objectMapper.readValue(o.toString(),entityClass);
+    public <T> T get (String key,Class<T> entityClass){
+        try{
+            Object o=redisTemplate.opsForValue().get(key);
+            ObjectMapper objectMapper=new ObjectMapper();
+            return objectMapper.readValue(o.toString(),entityClass);
 //            return objectMapper.readValue(o.toString(), new TypeReference<List<entityClass>>() {});
-//        }catch(NullPointerException nullPointerException){
-//            throw new NullPointerException("No response received");
-//        }catch(Exception e){
-//            throw new RuntimeException(e.getMessage());
-//        }
-//    }
+        }catch(NullPointerException nullPointerException){
+            throw new NullPointerException("No response received");
+        }catch(Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 
 
 //    public void set(String key,Object o, Long ttl){
@@ -65,6 +65,10 @@ public class RedisService {
         } catch (Exception e) {
             log.error(" Error while writing to redis:",e);
         }
+    }
+
+    public void delete(String key){
+        redisTemplate.delete(key);
     }
 
 }
